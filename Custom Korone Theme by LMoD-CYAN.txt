@@ -1,0 +1,130 @@
+// ==UserScript==
+// @name        Custom Theme By LMoD CYAN
+// @namespace   Violentmonkey Scripts
+// @match       *://pekora.zip/*
+// @match       *://www.pekora.zip/*
+// @exclude-match *://www.pekora.zip/internal/collectibles*
+// @grant       none
+// @version     7.1
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    if (window.location.href.includes('/internal/collectibles')) return;
+
+    const CYAN = "#00ffff";
+    const GREEN = "#00ff00";
+    const GLOW = "0 0 8px #00ffff, 0 0 15px #008888";
+    const BTN_GLOW = "0 0 12px #00ffff, 0 0 20px #008888";
+    const GREEN_GLOW = "0 0 10px #00ff00, 0 0 20px #00ff00";
+
+    const css = `
+        *, ::before, ::after {
+            background-color: transparent !important;
+            border-color: transparent !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        html, body, #app, .main-container, [class*='container-'], .page-content,
+        .content, .rbx-header, #header, .nav-container, .trade-request-window,
+        [class*='innerSection'], [class*='modalWrapper'], .section-content,
+        .modal-content, .modal-body, .modal-footer, .modal-header,
+        section, main, article, aside, nav, header, footer, .panel, .card,
+        .rbx-tab-content, .tab-container, .avatar-backscape,
+        [class*='avatar-container'], .avatar-preview-container, .avatar-card-container,
+        .item-card-container, .item-card-thumb-container, .group-card, .menu-bar,
+        .tab-content, .container-main, .footer, .ad-annotations, .ad-container,
+        [class*='section-content'], [class*='content-'], .profile-header, .profile-ads-container {
+            background-color: #000000 !important;
+            background: #000000 !important;
+        }
+
+        div, span, p, b, h1, h2, h3, h4, h5, h6, a, label, .text-label, [class*='text-'], th, td {
+            color: ${CYAN} !important;
+            text-shadow: ${GLOW} !important;
+        }
+
+        .item-card.wearing, .item-card[data-is-wearing="true"], .item-card.is-wearing,
+        [class*='item-card'].wearing, .avatar-card-container.wearing, .item-card-container.wearing,
+        .item-card-link[data-is-wearing="true"], [class*='item-card'][class*='wearing'] {
+            border: 2px solid ${GREEN} !important;
+            box-shadow: ${GREEN_GLOW} !important;
+            outline: 2px solid ${GREEN} !important;
+        }
+
+        .item-card.wearing *, .item-card[data-is-wearing="true"] *, .item-card.is-wearing * {
+            color: ${GREEN} !important;
+            text-shadow: ${GREEN_GLOW} !important;
+        }
+
+        button, .btn-primary, .play-button, [class*='btn-0-2-'],
+        .acceptButton-0-2-149, .cancelButton-0-2-152, .buyButton-0-2-150,
+        .btn-confirm, .btn-control, [style*="background-color: rgb(0, 162, 255)"] {
+            background-color: #004444 !important;
+            color: #ffffff !important;
+            border: 1px solid ${CYAN} !important;
+            box-shadow: ${BTN_GLOW} !important;
+            text-shadow: 0 0 5px #ffffff !important;
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        button:hover {
+            background-color: #006666 !important;
+            box-shadow: 0 0 20px #00ffff !important;
+        }
+
+        .item-card, .game-card, img, .thumbnail-holder,
+        [class*='imageWrapper'], [class*='image-0-2-'], .avatar-card-container {
+            background-color: #000000 !important;
+            border: 1px solid #003333 !important;
+        }
+
+        .rbx-header, .navbar, .ribbon-bar, [class*='header'], #navbar {
+            background-color: #000000 !important;
+            border-bottom: 1px solid #004444 !important;
+        }
+
+        input, select, textarea {
+            background-color: #111 !important;
+            color: ${CYAN} !important;
+            border: 1px solid #004444 !important;
+        }
+
+        ::-webkit-scrollbar { width: 0px; }
+    `;
+
+    const style = document.createElement('style');
+    style.innerHTML = css;
+    document.head.appendChild(style);
+
+    const sweep = () => {
+        document.querySelectorAll('*').forEach(el => {
+            const style = window.getComputedStyle(el);
+            const bg = style.backgroundColor;
+
+            if (el.tagName === 'BODY' || el.tagName === 'HTML') return;
+
+            const isWhiteish = bg.includes('255, 255, 255') || bg.includes('242, 244, 245') || bg.includes('231, 233, 235');
+            const isBlueish = bg.includes('0, 162, 255') || bg.includes('rgb(0, 162, 255)');
+            const isBrownish = bg.includes('84, 63, 26');
+
+            if (isWhiteish || isBlueish || isBrownish) {
+                el.style.setProperty('background-color', '#000000', 'important');
+            }
+
+            if (el.classList.contains('wearing') || el.getAttribute('data-is-wearing') === 'true') {
+                el.style.setProperty('border', `2px solid ${GREEN}`, 'important');
+                el.style.setProperty('box-shadow', GREEN_GLOW, 'important');
+            }
+        });
+    };
+
+    const observer = new MutationObserver(sweep);
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+    sweep();
+    setInterval(sweep, 1000);
+})();
